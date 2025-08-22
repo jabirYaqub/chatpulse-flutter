@@ -7,6 +7,7 @@ A modern, real-time chat application built with Flutter and Firebase. Connect wi
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![GetX](https://img.shields.io/badge/GetX-9C27B0?style=for-the-badge&logo=flutter&logoColor=white)
 
+## 📱 Screenshots
 
 <img width="169" height="370" alt="image" src="https://github.com/user-attachments/assets/c3a4e3ad-e0b1-454d-ba90-7abb13421e7a" />
 <img width="167" height="360" alt="image" src="https://github.com/user-attachments/assets/e2442f73-dd4d-489f-ba27-5ddfe059111a" />
@@ -16,7 +17,8 @@ A modern, real-time chat application built with Flutter and Firebase. Connect wi
 <img width="167" height="359" alt="image" src="https://github.com/user-attachments/assets/88e49b43-8ba0-4537-92c0-7eb8374bd37f" />
 <img width="167" height="364" alt="image" src="https://github.com/user-attachments/assets/d5ea7319-ab50-4d2c-b11a-9e320a511887" />
 <img width="165" height="362" alt="image" src="https://github.com/user-attachments/assets/6339165d-540f-49c3-9208-6a45e9d714ce" />
-<img width="166" height="365" alt="image" src="https://github.com/user-attachments/assets/bee2e56c-3780-4834-a669-22ff2b6e77e5"
+<img width="166" height="365" alt="image" src="https://github.com/user-attachments/assets/bee2e56c-3780-4834-a669-22ff2b6e77e5"/>
+
 
 ## ✨ Features
 
@@ -59,9 +61,6 @@ A modern, real-time chat application built with Flutter and Firebase. Connect wi
 - **Unread Counters** with visual badges
 - **Profile Customization** with Cloudinary integration
 - **Soft Delete** for chats and messages
-
-## 📱 Screenshots
-
 
 ## 🛠️ Tech Stack
 
