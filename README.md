@@ -318,17 +318,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Cloudinary](https://cloudinary.com/) for image management
 - [Material Design](https://material.io/) for design guidelines
 
-## 📈 Roadmap
-
-- [ ] **Group Chats** - Multi-user conversations
-- [ ] **Media Sharing** - Images, videos, documents
-- [ ] **Voice Messages** - Audio recording and playback
-- [ ] **Video Calls** - Real-time video communication
-- [ ] **Push Notifications** - Background notifications
-- [ ] **Dark Mode** - Complete dark theme
-- [ ] **Message Search** - Full-text search across chats
-- [ ] **Location Sharing** - Share current location
-
 ---
 
 <div align="center">
