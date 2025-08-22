@@ -1,4 +1,4 @@
-# flutter-chat-app 💬
+# chatpulse-flutter 💬
 
 A modern, real-time chat application built with Flutter and Firebase. Connect with friends, send instant messages, and manage your social connections through an intuitive and beautiful interface.
 
