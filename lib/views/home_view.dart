@@ -7,6 +7,9 @@ import 'package:chat_app_flutter/controllers/main_controller.dart';
 import 'package:chat_app_flutter/widgets/chat_list_item.dart';
 import 'package:chat_app_flutter/routes/app_routes.dart';
 
+/// GetView that provides the main home screen with chat list functionality
+/// Features search, filtering, notifications, and navigation to various chat-related screens
+/// Serves as the primary hub for users to access their conversations and start new chats
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
@@ -15,43 +18,54 @@ class HomeView extends GetView<HomeController> {
     final AuthController authController = Get.find<AuthController>();
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.grey[50], // Light background for the entire screen
       appBar: _buildAppBar(context, authController),
       body: Column(
         children: [
+          // Search bar at the top for finding conversations
           _buildSearchBar(),
+          // Dynamic area that shows either search results info or filter chips
           Obx(
                 () => controller.isSearching && controller.searchQuery.isNotEmpty
-                ? _buildSearchResults()
-                : _buildQuickFilters(),
+                ? _buildSearchResults()    // Show search result count and clear button
+                : _buildQuickFilters(),    // Show filter chips for chat categories
           ),
+          // Main content area with pull-to-refresh functionality
           Expanded(
             child: RefreshIndicator(
               onRefresh: controller.refreshChats,
               color: AppTheme.primaryColor,
               backgroundColor: Colors.white,
               child: Obx(() {
+                // Handle different empty states based on current mode and filters
                 if (controller.chats.isEmpty) {
                   if (controller.isSearching &&
                       controller.searchQuery.isNotEmpty) {
-                    return _buildNoSearchResults();
+                    return _buildNoSearchResults();  // No search matches
                   } else if (controller.activeFilter != 'All') {
-                    return _buildNoFilterResults();
+                    return _buildNoFilterResults();  // No results for current filter
                   } else {
-                    return _buildEmptyState();
+                    return _buildEmptyState();       // No chats at all
                   }
                 }
 
+                // Display the list of chats
                 return _buildChatsList();
               }),
             ),
           ),
         ],
       ),
+      // Floating action button for starting new chats
       floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
+  /// Builds the app bar with profile picture, dynamic title, and action buttons
+  /// Features clickable profile picture for navigation and notification badge
+  /// @param context - BuildContext for theme access
+  /// @param authController - AuthController for user data access
+  /// @return PreferredSizeWidget - The configured app bar
   PreferredSizeWidget _buildAppBar(
       BuildContext context,
       AuthController authController,
@@ -62,7 +76,7 @@ class HomeView extends GetView<HomeController> {
       elevation: 0,
       title: Row(
         children: [
-          // Profile picture that's clickable
+          // Profile picture that's clickable for navigation to profile tab
           Obx(() {
             final user = authController.userModel;
             return GestureDetector(
@@ -82,6 +96,7 @@ class HomeView extends GetView<HomeController> {
                       ? Image.network(
                     user!.photoURL,
                     fit: BoxFit.cover,
+                    // Fallback to initials if image fails to load
                     errorBuilder: (context, error, stackTrace) {
                       return _buildDefaultProfileAvatar(user);
                     },
@@ -92,6 +107,7 @@ class HomeView extends GetView<HomeController> {
             );
           }),
           const SizedBox(width: 12),
+          // Dynamic title that changes based on search state
           Expanded(
             child: Obx(
                   () => Text(
@@ -105,6 +121,7 @@ class HomeView extends GetView<HomeController> {
       ),
       automaticallyImplyLeading: false,
       actions: [
+        // Dynamic action button - clear search or notification bell
         Obx(
               () => controller.isSearching
               ? IconButton(
@@ -119,6 +136,10 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the default profile avatar with user's initials
+  /// Used as fallback when profile image is unavailable or fails to load
+  /// @param user - The user model containing display name
+  /// @return Widget - Circular avatar with initials
   Widget _buildDefaultProfileAvatar(dynamic user) {
     return Container(
       width: 40,
@@ -142,6 +163,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the notification button with unread count badge
+  /// Shows a red badge with count when there are unread notifications
+  /// @return Widget - Notification button with optional badge
   Widget _buildNotificationButton() {
     return Obx(() {
       final unreadNotifications = controller.getUnreadNotificationsCount();
@@ -150,6 +174,7 @@ class HomeView extends GetView<HomeController> {
         margin: const EdgeInsets.only(right: 8),
         child: Stack(
           children: [
+            // Main notification button
             Container(
               decoration: BoxDecoration(
                 color: Colors.grey[100],
@@ -161,6 +186,7 @@ class HomeView extends GetView<HomeController> {
                 splashRadius: 20,
               ),
             ),
+            // Red badge for unread count (only shown when count > 0)
             if (unreadNotifications > 0)
               Positioned(
                 right: 6,
@@ -180,6 +206,7 @@ class HomeView extends GetView<HomeController> {
                     minHeight: 16,
                   ),
                   child: Text(
+                    // Show "99+" for counts over 99
                     unreadNotifications > 99
                         ? '99+'
                         : unreadNotifications.toString(),
@@ -198,6 +225,9 @@ class HomeView extends GetView<HomeController> {
     });
   }
 
+  /// Builds the search bar for filtering conversations
+  /// Features real-time search with clear button that appears when typing
+  /// @return Widget - The search input interface
   Widget _buildSearchBar() {
     return Container(
       color: Colors.white,
@@ -208,6 +238,7 @@ class HomeView extends GetView<HomeController> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: TextField(
+          // Real-time search as user types
           onChanged: controller.onSearchChanged,
           decoration: InputDecoration(
             hintText: 'Search conversations...',
@@ -217,6 +248,7 @@ class HomeView extends GetView<HomeController> {
               color: Colors.grey[500],
               size: 20,
             ),
+            // Dynamic clear button - only shown when there's text
             suffixIcon: Obx(
                   () => controller.searchQuery.isNotEmpty
                   ? IconButton(
@@ -240,6 +272,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the horizontal scrolling filter chips for chat categories
+  /// Shows different categories with dynamic counts from controller
+  /// @return Widget - Horizontal scrollable filter interface
   Widget _buildQuickFilters() {
     return Container(
       color: Colors.white,
@@ -248,6 +283,7 @@ class HomeView extends GetView<HomeController> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
+            // All conversations filter
             Obx(
                   () => _buildFilterChip(
                 'All',
@@ -256,6 +292,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 8),
+            // Unread conversations filter with dynamic count
             Obx(
                   () => _buildFilterChip(
                 'Unread (${controller.getUnreadCount()})',
@@ -264,6 +301,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 8),
+            // Recent conversations filter with dynamic count
             Obx(
                   () => _buildFilterChip(
                 'Recent (${controller.getRecentCount()})',
@@ -272,6 +310,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             const SizedBox(width: 8),
+            // Active conversations filter with dynamic count
             Obx(
                   () => _buildFilterChip(
                 'Active (${controller.getActiveCount()})',
@@ -285,18 +324,25 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds individual filter chip with active/inactive styling
+  /// @param label - The text to display on the chip
+  /// @param onTap - Callback when chip is tapped
+  /// @param isSelected - Whether this chip is currently active
+  /// @return Widget - Styled filter chip
   Widget _buildFilterChip(String label, VoidCallback onTap, bool isSelected) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
+          // Active filter gets primary color, inactive gets gray
           color: isSelected ? AppTheme.primaryColor : Colors.grey[200],
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           label,
           style: TextStyle(
+            // White text on active, gray on inactive
             color: isSelected ? Colors.white : AppTheme.textSecondaryColor,
             fontWeight: FontWeight.w500,
             fontSize: 13,
@@ -306,12 +352,16 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the search results header showing result count and clear option
+  /// Displayed when user is actively searching
+  /// @return Widget - Search results information bar
   Widget _buildSearchResults() {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(
         children: [
+          // Dynamic result count text
           Obx(
                 () => Text(
               'Found ${controller.filteredChats.length} result${controller.filteredChats.length == 1 ? '' : 's'}',
@@ -322,6 +372,7 @@ class HomeView extends GetView<HomeController> {
             ),
           ),
           const Spacer(),
+          // Clear search button
           TextButton(
             onPressed: controller.clearSearch,
             child: Text(
@@ -337,6 +388,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds empty state for when search returns no results
+  /// Shows search-specific messaging and current search query
+  /// @return Widget - No search results display
   Widget _buildNoSearchResults() {
     return Container(
       decoration: const BoxDecoration(
@@ -363,6 +417,7 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
               const SizedBox(height: 8),
+              // Show current search query
               Obx(
                     () => Text(
                   'No results for "${controller.searchQuery}"',
@@ -377,6 +432,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds empty state for when current filter has no results
+  /// Shows filter-specific messaging and option to clear filter
+  /// @return Widget - No filter results display
   Widget _buildNoFilterResults() {
     return Container(
       decoration: const BoxDecoration(
@@ -413,6 +471,7 @@ class HomeView extends GetView<HomeController> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
+              // Button to clear filter and show all conversations
               ElevatedButton(
                 onPressed: () => controller.setFilter('All'),
                 style: ElevatedButton.styleFrom(
@@ -435,6 +494,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Returns appropriate icon for each filter type
+  /// @param filter - The filter name
+  /// @return IconData - Matching icon for the filter
   IconData _getFilterIcon(String filter) {
     switch (filter) {
       case 'Unread':
@@ -448,6 +510,9 @@ class HomeView extends GetView<HomeController> {
     }
   }
 
+  /// Returns appropriate empty message for each filter type
+  /// @param filter - The filter name
+  /// @return String - User-friendly message for empty filter
   String _getFilterEmptyMessage(String filter) {
     switch (filter) {
       case 'Unread':
@@ -461,6 +526,9 @@ class HomeView extends GetView<HomeController> {
     }
   }
 
+  /// Builds the main chats list with header and animated items
+  /// Features dividers between items and responsive padding
+  /// @return Widget - The complete chats list interface
   Widget _buildChatsList() {
     return Container(
       decoration: const BoxDecoration(
@@ -472,8 +540,10 @@ class HomeView extends GetView<HomeController> {
       ),
       child: Column(
         children: [
+          // Header section (only shown when not searching)
           if (!controller.isSearching || controller.searchQuery.isEmpty)
             _buildChatsHeader(),
+          // Scrollable list of chat items
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.symmetric(
@@ -481,16 +551,19 @@ class HomeView extends GetView<HomeController> {
                 vertical: controller.isSearching ? 16 : 8,
               ),
               itemCount: controller.chats.length,
+              // Dividers between chat items
               separatorBuilder: (context, index) =>
                   Divider(height: 1, color: Colors.grey[200], indent: 72),
               itemBuilder: (context, index) {
                 final chat = controller.chats[index];
                 final otherUser = controller.getOtherUser(chat);
 
+                // Skip rendering if other user data is unavailable
                 if (otherUser == null) {
                   return const SizedBox.shrink();
                 }
 
+                // Animated container for smooth transitions
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   child: ChatListItem(
@@ -510,12 +583,16 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the header section above the chats list
+  /// Shows current filter title and clear filter option
+  /// @return Widget - Chats list header
   Widget _buildChatsHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Dynamic title based on current filter
           Obx(() {
             String title = 'Recent Chats';
             switch (controller.activeFilter) {
@@ -540,6 +617,7 @@ class HomeView extends GetView<HomeController> {
           }),
           Row(
             children: [
+              // Clear filter button (only shown when filter is active)
               if (controller.activeFilter != 'All')
                 TextButton(
                   onPressed: controller.clearAllFilters,
@@ -559,6 +637,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the floating action button for starting new chats
+  /// Features shadow styling and navigation to friends list
+  /// @return Widget - Styled floating action button
   Widget _buildFloatingActionButton() {
     return Container(
       decoration: BoxDecoration(
@@ -585,8 +666,12 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the main empty state when user has no conversations
+  /// Features onboarding messaging and action buttons for getting started
+  /// @return Widget - Complete empty state interface
   Widget _buildEmptyState() {
     return SingleChildScrollView(
+      // Allow pull-to-refresh even when empty
       physics: const AlwaysScrollableScrollPhysics(),
       child: Container(
         height: MediaQuery.of(Get.context!).size.height * 0.6,
@@ -603,11 +688,11 @@ class HomeView extends GetView<HomeController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildEmptyStateIcon(),
+                _buildEmptyStateIcon(),    // Large decorative icon
                 const SizedBox(height: 24),
-                _buildEmptyStateText(),
+                _buildEmptyStateText(),    // Heading and description
                 const SizedBox(height: 32),
-                _buildEmptyStateActions(),
+                _buildEmptyStateActions(), // Action buttons
               ],
             ),
           ),
@@ -616,6 +701,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the decorative icon for the empty state
+  /// Features gradient background and chat bubble icon
+  /// @return Widget - Styled empty state icon
   Widget _buildEmptyStateIcon() {
     return Container(
       width: 140,
@@ -639,6 +727,9 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the text content for the empty state
+  /// Includes main heading and descriptive subtext
+  /// @return Widget - Empty state text content
   Widget _buildEmptyStateText() {
     return Column(
       children: [
@@ -664,15 +755,19 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  /// Builds the action buttons for the empty state
+  /// Primary button for finding people, secondary for viewing friends
+  /// @return Widget - Empty state action buttons
   Widget _buildEmptyStateActions() {
     return Column(
       children: [
+        // Primary action - Find People (navigates to people search)
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
               final mainController = Get.find<MainController>();
-              mainController.changeTabIndex(2);
+              mainController.changeTabIndex(2); // Navigate to people tab
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
@@ -691,12 +786,13 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
         const SizedBox(height: 12),
+        // Secondary action - View Friends (navigates to friends list)
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () {
               final mainController = Get.find<MainController>();
-              mainController.changeTabIndex(1);
+              mainController.changeTabIndex(1); // Navigate to friends tab
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: AppTheme.primaryColor,
