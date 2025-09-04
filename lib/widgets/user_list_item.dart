@@ -4,6 +4,8 @@ import 'package:chat_app_flutter/models/user_model.dart';
 import 'package:chat_app_flutter/controllers/users_list_controller.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// A widget that displays a user item in a list with relationship status-based actions
+/// Supports friend requests, blocking, and online status indicators
 class UserListItem extends StatelessWidget {
   final UserModel user;
   final VoidCallback onTap;
@@ -18,10 +20,11 @@ class UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use Obx to reactively rebuild when relationship status changes
     return Obx(() {
       final relationshipStatus = controller.getUserRelationshipStatus(user.id);
 
-      // Don't show users who are already friends
+      // Hide users who are already friends from the list
       if (relationshipStatus == UserRelationshipStatus.friends) {
         return const SizedBox.shrink();
       }
@@ -35,9 +38,10 @@ class UserListItem extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Profile picture with online status
+              // Left section: Profile picture with online status indicator
               Stack(
                 children: [
+                  // Main profile avatar
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: AppTheme.primaryColor,
@@ -48,18 +52,20 @@ class UserListItem extends StatelessWidget {
                         width: 56,
                         height: 56,
                         fit: BoxFit.cover,
+                        // Show loading indicator while image loads
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
                           return _buildLoadingAvatar();
                         },
+                        // Fallback to default avatar on error
                         errorBuilder: (context, error, stackTrace) {
                           return _buildDefaultAvatar();
                         },
                       ),
                     )
-                        : _buildDefaultAvatar(),
+                        : _buildDefaultAvatar(), // Use default avatar if no photo URL
                   ),
-                  // Online status indicator
+                  // Green dot indicator for online status
                   if (user.isOnline)
                     Positioned(
                       bottom: 0,
@@ -77,10 +83,13 @@ class UserListItem extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 16),
+
+              // Middle section: User information (name, email, last seen)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // User's display name
                     Text(
                       user.displayName,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -89,6 +98,7 @@ class UserListItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
+                    // User's email address
                     Text(
                       user.email,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -97,7 +107,7 @@ class UserListItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
-                    // Last seen status
+                    // Last seen status text (green if online, gray if offline)
                     Text(
                       controller.getLastSeenText(user),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -110,9 +120,14 @@ class UserListItem extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // Right section: Action buttons based on relationship status
               Column(
                 children: [
+                  // Primary action button (Add Friend, Accept, etc.)
                   _buildActionButton(relationshipStatus),
+
+                  // Additional decline button for received friend requests
                   if (relationshipStatus ==
                       UserRelationshipStatus.friendRequestReceived) ...[
                     const SizedBox(height: 4),
@@ -143,7 +158,8 @@ class UserListItem extends StatelessWidget {
     });
   }
 
-  // Default avatar with user initials
+  /// Builds a default avatar with the user's initial letter
+  /// Used when no profile photo is available or fails to load
   Widget _buildDefaultAvatar() {
     return Container(
       width: 56,
@@ -156,7 +172,7 @@ class UserListItem extends StatelessWidget {
         child: Text(
           user.displayName.isNotEmpty
               ? user.displayName[0].toUpperCase()
-              : '?',
+              : '?', // Fallback to '?' if no display name
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -167,7 +183,8 @@ class UserListItem extends StatelessWidget {
     );
   }
 
-  // Loading avatar with shimmer effect
+  /// Builds a loading avatar with circular progress indicator
+  /// Shown while profile image is being loaded from network
   Widget _buildLoadingAvatar() {
     return Container(
       width: 56,
@@ -189,8 +206,11 @@ class UserListItem extends StatelessWidget {
     );
   }
 
+  /// Builds the appropriate action button based on the current relationship status
+  /// Returns different button styles and actions for each status type
   Widget _buildActionButton(UserRelationshipStatus relationshipStatus) {
     switch (relationshipStatus) {
+    // No relationship exists - show "Add Friend" button
       case UserRelationshipStatus.none:
         return ElevatedButton.icon(
           onPressed: () => controller.handleRelationshipAction(user),
@@ -207,9 +227,11 @@ class UserListItem extends StatelessWidget {
           ),
         );
 
+    // Friend request sent - show "Request Sent" status with cancel option
       case UserRelationshipStatus.friendRequestSent:
         return Column(
           children: [
+            // Status indicator showing request is pending
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
@@ -234,6 +256,7 @@ class UserListItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
+            // Cancel button to withdraw the friend request
             OutlinedButton.icon(
               onPressed: () => _showCancelRequestDialog(),
               icon: const Icon(Icons.cancel_outlined, size: 14),
@@ -251,6 +274,7 @@ class UserListItem extends StatelessWidget {
           ],
         );
 
+    // Friend request received - show "Accept" button
       case UserRelationshipStatus.friendRequestReceived:
         return ElevatedButton.icon(
           onPressed: () => controller.handleRelationshipAction(user),
@@ -267,6 +291,7 @@ class UserListItem extends StatelessWidget {
           ),
         );
 
+    // User is blocked - show "Blocked" status indicator
       case UserRelationshipStatus.blocked:
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -292,12 +317,14 @@ class UserListItem extends StatelessWidget {
           ),
         );
 
+    // Already friends - this case should never be reached due to early return
       case UserRelationshipStatus.friends:
-      // This case should never be reached due to the check at the beginning
         return const SizedBox.shrink();
     }
   }
 
+  /// Shows a confirmation dialog before canceling a friend request
+  /// Prevents accidental cancellations by requiring user confirmation
   void _showCancelRequestDialog() {
     Get.dialog(
       AlertDialog(
@@ -306,14 +333,16 @@ class UserListItem extends StatelessWidget {
           'Are you sure you want to cancel the friend request to ${user.displayName}?',
         ),
         actions: [
+          // Keep the request (cancel dialog)
           TextButton(
             onPressed: () => Get.back(),
             child: const Text('Keep Request'),
           ),
+          // Confirm cancellation (red button to indicate destructive action)
           TextButton(
             onPressed: () {
-              Get.back();
-              controller.cancelFriendRequest(user);
+              Get.back(); // Close dialog first
+              controller.cancelFriendRequest(user); // Then cancel request
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Cancel Request'),
