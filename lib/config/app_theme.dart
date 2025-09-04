@@ -1,49 +1,62 @@
 import 'package:flutter/material.dart';
 
-// The AppTheme class is responsible for defining the application's visual theme.
-// It uses a static class pattern to provide a single, consistent theme throughout the app.
+/// A centralized theme configuration class for the Flutter app.
+/// This class defines all color constants and provides a complete light theme
+/// with consistent styling across all UI components.
 class AppTheme {
-  // --- Color Palette Definitions ---
-  // A clean and well-organized color palette is crucial for a cohesive design.
-  // These are the base colors used across the app, named for their purpose.
 
-  // Primary colors for the application's brand identity.
+  // ==================== COLOR CONSTANTS ====================
+
+  /// Primary brand color - A vibrant purple used for main actions and highlights
   static const Color primaryColor = Color(0xFF6C5CE7);
+
+  /// Secondary brand color - A complementary blue for secondary actions
   static const Color secondaryColor = Color(0xFF74B9FF);
 
-  // Status colors to provide visual feedback for success, error, and warning states.
+  // Status colors for different UI states
+  /// Success state color - Green for positive feedback and success messages
   static const Color successColor = Color(0xFF00B894);
+
+  /// Error state color - Orange-red for error messages and validation failures
   static const Color errorColor = Color(0xFFE17055);
+
+  /// Warning state color - Yellow for warning messages and caution alerts
   static const Color warningColor = Color(0xFFFDCB6E);
 
-  // Text colors for different levels of hierarchy.
+  // Text colors for different content hierarchy
+  /// Primary text color - Dark gray for main content and headings
   static const Color textPrimaryColor = Color(0xFF2D3436);
+
+  /// Secondary text color - Medium gray for supporting text and labels
   static const Color textSecondaryColor = Color(0xFF636E72);
 
-  // Background colors for the main screen and elevated surfaces (e.g., cards).
+  // Background and surface colors
+  /// Main background color - Light gray for app background
   static const Color backgroundColor = Color(0xFFF8F9FA);
+
+  /// Card and surface color - Pure white for elevated elements
   static const Color cardColor = Color(0xFFFFFFFF);
-  // A subtle border color, often used for input fields or separators.
+
+  /// Border color - Light purple for borders and dividers
   static const Color borderColor = Color(0xFFDDD6FE);
 
-  // --- Light Theme Definition ---
-  // This static getter provides a complete ThemeData object for the light theme.
-  // Using a getter allows for potential future logic or more complex theme setup.
+  // ==================== LIGHT THEME CONFIGURATION ====================
+
+  /// Returns a complete ThemeData configuration for the app's light theme.
+  /// This theme follows Material 3 design principles and provides consistent
+  /// styling for all Flutter UI components.
   static ThemeData get lightTheme {
     return ThemeData(
       // Enable Material 3 for modern UI components and styles.
       useMaterial3: true,
-      // Create a swatch from the primary color to generate shades. This is necessary
-      // for components that use `primarySwatch`, like `FloatingActionButton`.
+
+      // Generate a material color swatch from our primary color
       primarySwatch: _createMaterialColor(primaryColor),
       // Explicitly set the primary and scaffold background colors.
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
       cardColor: cardColor,
 
-      // --- Component-Specific Themes ---
-      // These sections define the look and feel of specific widgets.
-      // This approach ensures consistency across all instances of a widget type.
 
       // AppBar Theme: Defines the style of the app's top bar.
       appBarTheme: const AppBarTheme(
@@ -93,6 +106,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: errorColor, width: 2),
         ),
+        // Internal spacing within the input field
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         // Style for hint and label text within the input field.
         hintStyle: const TextStyle(color: textSecondaryColor),
@@ -105,10 +119,12 @@ class AppTheme {
           backgroundColor: primaryColor, // Use the brand's primary color.
           foregroundColor: Colors.white, // White text for contrast.
           elevation: 0, // Flat design.
+          // Internal spacing within the button
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          // Typography styling for button text
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -120,7 +136,9 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor, // The text color is the primary color.
+          // Internal spacing within the button
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          // Typography styling for button text
           textStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -133,10 +151,12 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
           side: const BorderSide(color: primaryColor), // The border is the primary color.
+          // Internal spacing within the button
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          // Typography styling for button text
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -165,41 +185,49 @@ class AppTheme {
       // Text Theme: A complete set of text styles for different headings and body text.
       // This is the foundation for a consistent typography system.
       textTheme: const TextTheme(
+        // Large headline text - Used for main page titles and major headings
         headlineLarge: TextStyle(
           color: textPrimaryColor,
           fontSize: 32,
           fontWeight: FontWeight.bold,
         ),
+        // Medium headline text - Used for section headers and important titles
         headlineMedium: TextStyle(
           color: textPrimaryColor,
           fontSize: 28,
           fontWeight: FontWeight.bold,
         ),
+        // Small headline text - Used for subsection headers
         headlineSmall: TextStyle(
           color: textPrimaryColor,
           fontSize: 24,
           fontWeight: FontWeight.w600,
         ),
+        // Large title text - Used for card titles and prominent labels
         titleLarge: TextStyle(
           color: textPrimaryColor,
           fontSize: 22,
           fontWeight: FontWeight.w600,
         ),
+        // Medium title text - Used for list item titles and form labels
         titleMedium: TextStyle(
           color: textPrimaryColor,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
+        // Large body text - Used for main content and descriptions
         bodyLarge: TextStyle(
           color: textPrimaryColor,
           fontSize: 16,
           fontWeight: FontWeight.normal,
         ),
+        // Medium body text - Used for regular content and paragraphs
         bodyMedium: TextStyle(
           color: textPrimaryColor,
           fontSize: 14,
           fontWeight: FontWeight.normal,
         ),
+        // Small body text - Used for captions, helper text, and fine print
         bodySmall: TextStyle(
           color: textSecondaryColor, // Lighter color for fine print or secondary info.
           fontSize: 12,
@@ -222,9 +250,14 @@ class AppTheme {
     );
   }
 
-  // --- Utility Method ---
-  // This is a private helper method used to generate a MaterialColor swatch.
-  // MaterialColor is required by `primarySwatch` in `ThemeData`.
+  // ==================== HELPER METHODS ====================
+
+  /// Creates a MaterialColor swatch from a single color.
+  /// This generates different shades (50, 100, 200, etc.) of the given color
+  /// which Flutter uses for various UI states and hover effects.
+  ///
+  /// [color] The base color to generate shades from
+  /// Returns a MaterialColor with calculated color shades
   static MaterialColor _createMaterialColor(Color color) {
     // This is a standard algorithm to generate different shades of a color.
     // It is a common practice when defining a custom theme.
@@ -232,11 +265,15 @@ class AppTheme {
     Map<int, Color> swatch = {};
     final int r = color.red, g = color.green, b = color.blue;
 
+    // Generate strength values from 0.1 to 0.9 (representing different shade intensities)
     for (int i = 1; i < 10; i++) {
       strengths.add(0.1 * i);
     }
+
+    // Calculate color variations for each strength level
     for (var strength in strengths) {
       final double ds = 0.5 - strength;
+      // Create a new color shade by adjusting RGB values
       swatch[(strength * 1000).round()] = Color.fromRGBO(
         r + ((ds < 0 ? r : (255 - r)) * ds).round(),
         g + ((ds < 0 ? g : (255 - g)) * ds).round(),
