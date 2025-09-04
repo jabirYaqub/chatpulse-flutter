@@ -3,14 +3,17 @@ import 'package:chat_app_flutter/models/notification_model.dart';
 import 'package:chat_app_flutter/models/user_model.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// StatelessWidget that displays a single notification item in the notifications list
+/// Features dynamic content based on notification type, read/unread visual indicators,
+/// and interactive actions for tapping to view details or deleting the notification
 class NotificationItem extends StatelessWidget {
-  final NotificationModel notification;
-  final UserModel? user;
-  final String timeText;
-  final IconData icon;
-  final Color iconColor;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
+  final NotificationModel notification;  // The notification data to display
+  final UserModel? user;                 // Optional user data for personalized messages
+  final String timeText;                 // Formatted time string for display
+  final IconData icon;                   // Icon representing notification type
+  final Color iconColor;                 // Color for the notification icon
+  final VoidCallback onTap;              // Callback when notification is tapped
+  final VoidCallback onDelete;           // Callback for deleting notification
 
   const NotificationItem({
     super.key,
@@ -26,14 +29,16 @@ class NotificationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      // Different background color for unread notifications
       color: notification.isRead ? null : AppTheme.primaryColor.withOpacity(0.05),
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap, // Handle notification tap to view details or take action
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
+              // Notification type icon with colored background
               Container(
                 width: 48,
                 height: 48,
@@ -48,20 +53,24 @@ class NotificationItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
+              // Notification content area
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Title row with unread indicator
                     Row(
                       children: [
                         Expanded(
                           child: Text(
                             notification.title,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              // Bold text for unread notifications
                               fontWeight: notification.isRead ? FontWeight.normal : FontWeight.w600,
                             ),
                           ),
                         ),
+                        // Blue dot indicator for unread notifications
                         if (!notification.isRead)
                           Container(
                             width: 8,
@@ -74,6 +83,7 @@ class NotificationItem extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Notification body text with personalized content
                     Text(
                       _getNotificationBody(),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -83,6 +93,7 @@ class NotificationItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
+                    // Timestamp of the notification
                     Text(
                       timeText,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -92,6 +103,7 @@ class NotificationItem extends StatelessWidget {
                   ],
                 ),
               ),
+              // Delete button for removing notification
               IconButton(
                 onPressed: onDelete,
                 icon: const Icon(
@@ -107,9 +119,13 @@ class NotificationItem extends StatelessWidget {
     );
   }
 
+  /// Generates personalized notification body text based on notification type and user data
+  /// Creates user-friendly messages by incorporating the related user's name when available
+  /// @return String - Personalized notification body text
   String _getNotificationBody() {
     String body = notification.body;
 
+    // Personalize notification messages when user data is available
     if (user != null) {
       switch (notification.type) {
         case NotificationType.friendRequest:
