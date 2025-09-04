@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:chat_app_flutter/controllers/profile_controller.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// GetView that displays the user's profile screen with edit capabilities
+/// Features profile picture management, personal information editing,
+/// account actions, and settings navigation for complete profile management
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
 
@@ -14,6 +17,7 @@ class ProfileView extends GetView<ProfileController> {
         centerTitle: true, // Center the title
         leading: const SizedBox(), // Remove back button when accessed from main navigation
         actions: [
+          // Dynamic edit/cancel button that changes based on editing state
           Obx(
                 () => TextButton(
               onPressed: controller.isEditing
@@ -22,6 +26,7 @@ class ProfileView extends GetView<ProfileController> {
               child: Text(
                 controller.isEditing ? 'Cancel' : 'Edit',
                 style: TextStyle(
+                  // Red color for cancel, blue for edit
                   color: controller.isEditing
                       ? AppTheme.errorColor
                       : AppTheme.primaryColor,
@@ -33,6 +38,7 @@ class ProfileView extends GetView<ProfileController> {
       ),
       body: Obx(() {
         final user = controller.currentUser;
+        // Show loading indicator while user data is being fetched
         if (user == null) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -41,10 +47,13 @@ class ProfileView extends GetView<ProfileController> {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
+              // Profile picture and basic info section
               _buildProfileHeader(user),
               const SizedBox(height: 32),
+              // Editable form for personal information
               _buildProfileForm(),
               const SizedBox(height: 32),
+              // Account actions and app info section
               _buildActionButtons(),
             ],
           ),
@@ -53,11 +62,17 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
+  /// Builds the profile header with avatar, name, email, and status
+  /// Features interactive profile picture with update/remove options
+  /// @param user - The user model containing profile information
+  /// @return Widget - Complete profile header section
   Widget _buildProfileHeader(dynamic user) {
     return Column(
       children: [
+        // Profile picture with camera overlay button
         Stack(
           children: [
+            // Main profile avatar with loading state
             Obx(() => CircleAvatar(
               radius: 60,
               backgroundColor: AppTheme.primaryColor,
@@ -73,6 +88,7 @@ class ProfileView extends GetView<ProfileController> {
                   width: 120,
                   height: 120,
                   fit: BoxFit.cover,
+                  // Fallback to initials if image fails to load
                   errorBuilder: (context, error, stackTrace) {
                     return _buildDefaultAvatar(user);
                   },
@@ -80,6 +96,7 @@ class ProfileView extends GetView<ProfileController> {
               )
                   : _buildDefaultAvatar(user),
             )),
+            // Camera button overlay for profile picture actions
             Positioned(
               bottom: 0,
               right: 0,
@@ -101,6 +118,7 @@ class ProfileView extends GetView<ProfileController> {
                     }
                   },
                   itemBuilder: (context) => [
+                    // Update photo option
                     const PopupMenuItem(
                       value: 'update',
                       child: ListTile(
@@ -109,6 +127,7 @@ class ProfileView extends GetView<ProfileController> {
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
+                    // Remove photo option (only shown if user has a photo)
                     if (user.photoURL.isNotEmpty)
                       const PopupMenuItem(
                         value: 'remove',
@@ -138,6 +157,7 @@ class ProfileView extends GetView<ProfileController> {
           ],
         ),
         const SizedBox(height: 16),
+        // User's display name
         Text(
           user.displayName,
           style: Theme.of(
@@ -145,6 +165,7 @@ class ProfileView extends GetView<ProfileController> {
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
+        // User's email address
         Text(
           user.email,
           style: Theme.of(
@@ -152,6 +173,7 @@ class ProfileView extends GetView<ProfileController> {
           ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondaryColor),
         ),
         const SizedBox(height: 8),
+        // Online/offline status indicator
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
@@ -163,6 +185,7 @@ class ProfileView extends GetView<ProfileController> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Status dot indicator
               Container(
                 width: 8,
                 height: 8,
@@ -174,6 +197,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const SizedBox(width: 6),
+              // Status text
               Text(
                 user.isOnline ? 'Online' : 'Offline',
                 style: Theme.of(Get.context!).textTheme.bodySmall?.copyWith(
@@ -187,6 +211,7 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
         const SizedBox(height: 8),
+        // Account creation date
         Text(
           controller.getJoinedDate(),
           style: Theme.of(
@@ -197,6 +222,10 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
+  /// Builds the default avatar with user's initials
+  /// Used when no profile picture is available or image fails to load
+  /// @param user - The user model containing display name
+  /// @return Widget - Text avatar with initials
   Widget _buildDefaultAvatar(dynamic user) {
     return Text(
       user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
@@ -208,6 +237,9 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
+  /// Builds the editable profile form section
+  /// Contains personal information fields with edit mode toggle
+  /// @return Widget - Profile editing form
   Widget _buildProfileForm() {
     return Obx(
           () => Card(
@@ -216,6 +248,7 @@ class ProfileView extends GetView<ProfileController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Section heading
               Text(
                 'Personal Information',
                 style: Theme.of(Get.context!).textTheme.headlineSmall?.copyWith(
@@ -224,6 +257,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const SizedBox(height: 20),
+              // Display name field - editable when in edit mode
               TextFormField(
                 controller: controller.displayNameController,
                 enabled: controller.isEditing,
@@ -233,6 +267,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
               ),
               const SizedBox(height: 16),
+              // Email field - always disabled (cannot be changed)
               TextFormField(
                 controller: controller.emailController,
                 enabled: false,
@@ -242,11 +277,13 @@ class ProfileView extends GetView<ProfileController> {
                   helperText: 'Email cannot be changed',
                 ),
               ),
+              // Save button - only shown when editing
               if (controller.isEditing) ...[
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    // Disable during loading to prevent multiple submissions
                     onPressed: controller.isLoading
                         ? null
                         : controller.updateProfile,
@@ -270,12 +307,17 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
+  /// Builds the action buttons section for account management
+  /// Contains navigation to settings and account actions like sign out
+  /// @return Widget - Action buttons and app version info
   Widget _buildActionButtons() {
     return Column(
       children: [
+        // Account actions card
         Card(
           child: Column(
             children: [
+              // Change password navigation
               ListTile(
                 leading: const Icon(
                   Icons.security,
@@ -286,6 +328,7 @@ class ProfileView extends GetView<ProfileController> {
                 onTap: () => Get.toNamed('/change-password'),
               ),
               const Divider(height: 1, color: Colors.grey),
+              // Sign out action
               ListTile(
                 leading: const Icon(Icons.logout, color: AppTheme.primaryColor),
                 title: const Text('Sign Out'),
@@ -293,6 +336,7 @@ class ProfileView extends GetView<ProfileController> {
                 onTap: controller.signOut,
               ),
               const Divider(height: 1, color: Colors.grey),
+              // Delete account action (destructive)
               ListTile(
                 leading: const Icon(
                   Icons.delete_forever,
@@ -306,6 +350,7 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
         const SizedBox(height: 20),
+        // App version information
         Text(
           'ChatApp v1.0.0',
           style: Theme.of(
