@@ -3,14 +3,19 @@ import 'package:get/get.dart';
 import 'package:chat_app_flutter/controllers/change_password_controller.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// StatelessWidget that provides a user interface for changing passwords
+/// Uses GetX for state management and reactive UI updates
+/// Features form validation, password visibility toggles, and loading states
 class ChangePasswordView extends StatelessWidget {
   const ChangePasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Initialize the controller using GetX dependency injection
     final controller = Get.put(ChangePasswordController());
 
     return Scaffold(
+      // App bar with title and back navigation
       appBar: AppBar(
         title: const Text('Change Password'),
         leading: IconButton(
@@ -22,11 +27,14 @@ class ChangePasswordView extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
+            // Form key for validation handling
             key: controller.formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
+
+                // Security icon container with circular background
                 Center(
                   child: Container(
                     width: 80,
@@ -43,6 +51,8 @@ class ChangePasswordView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // Main heading text
                 Text(
                   'Update Your Password',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -51,6 +61,8 @@ class ChangePasswordView extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
+
+                // Descriptive subtext providing user guidance
                 Text(
                   'Enter your current password and choose a new secure password',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -61,6 +73,7 @@ class ChangePasswordView extends StatelessWidget {
                 const SizedBox(height: 40),
 
                 // Current Password Field
+                // Uses Obx for reactive updates when visibility state changes
                 Obx(
                       () => TextFormField(
                     controller: controller.currentPasswordController,
@@ -68,6 +81,7 @@ class ChangePasswordView extends StatelessWidget {
                     decoration: InputDecoration(
                       labelText: 'Current Password',
                       prefixIcon: const Icon(Icons.lock_outlined),
+                      // Toggle button for password visibility
                       suffixIcon: IconButton(
                         icon: Icon(
                           // FIXED: Correct eye icon logic
@@ -85,6 +99,7 @@ class ChangePasswordView extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // New Password Field
+                // Reactive widget that updates when password visibility changes
                 Obx(
                       () => TextFormField(
                     controller: controller.newPasswordController,
@@ -92,6 +107,7 @@ class ChangePasswordView extends StatelessWidget {
                     decoration: InputDecoration(
                       labelText: 'New Password',
                       prefixIcon: const Icon(Icons.lock_outlined),
+                      // Eye icon toggles between visible/hidden states
                       suffixIcon: IconButton(
                         icon: Icon(
                           // FIXED: Correct eye icon logic
@@ -109,6 +125,7 @@ class ChangePasswordView extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Confirm Password Field
+                // Ensures user enters the same password twice for confirmation
                 Obx(
                       () => TextFormField(
                     controller: controller.confirmPasswordController,
@@ -116,6 +133,7 @@ class ChangePasswordView extends StatelessWidget {
                     decoration: InputDecoration(
                       labelText: 'Confirm New Password',
                       prefixIcon: const Icon(Icons.lock_outlined),
+                      // Visibility toggle for confirm password field
                       suffixIcon: IconButton(
                         icon: Icon(
                           // FIXED: Correct eye icon logic
@@ -133,13 +151,16 @@ class ChangePasswordView extends StatelessWidget {
                 const SizedBox(height: 40),
 
                 // Update Button
+                // Reactive button that shows loading state and disables during processing
                 Obx(
                       () => SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
+                      // Disable button during loading to prevent multiple submissions
                       onPressed: controller.isLoading
                           ? null
                           : controller.changePassword,
+                      // Show loading spinner or security icon based on state
                       icon: controller.isLoading
                           ? const SizedBox(
                         height: 20,
@@ -150,6 +171,7 @@ class ChangePasswordView extends StatelessWidget {
                         ),
                       )
                           : const Icon(Icons.security),
+                      // Dynamic button text based on loading state
                       label: Text(
                         controller.isLoading
                             ? 'Updating...'
