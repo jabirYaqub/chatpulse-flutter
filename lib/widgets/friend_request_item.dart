@@ -3,15 +3,18 @@ import 'package:chat_app_flutter/models/friend_request_model.dart';
 import 'package:chat_app_flutter/models/user_model.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// StatelessWidget that displays a single friend request item
+/// Features different layouts for received vs sent requests, with interactive buttons
+/// for received requests and status indicators for sent requests
 class FriendRequestItem extends StatelessWidget {
-  final FriendRequestModel request;
-  final UserModel user;
-  final String timeText;
-  final bool isReceived;
-  final VoidCallback? onAccept;
-  final VoidCallback? onDecline;
-  final String? statusText;
-  final Color? statusColor;
+  final FriendRequestModel request;  // The friend request data
+  final UserModel user;              // The other user involved in the request
+  final String timeText;             // Formatted time string for display
+  final bool isReceived;             // Whether this is a received or sent request
+  final VoidCallback? onAccept;      // Callback for accepting request (received only)
+  final VoidCallback? onDecline;     // Callback for declining request (received only)
+  final String? statusText;          // Status text for sent requests
+  final Color? statusColor;          // Status color for sent requests
 
   const FriendRequestItem({
     super.key,
@@ -32,8 +35,10 @@ class FriendRequestItem extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Main content row with user info
             Row(
               children: [
+                // User profile picture with fallback to initials
                 CircleAvatar(
                   radius: 24,
                   backgroundColor: AppTheme.primaryColor,
@@ -44,6 +49,7 @@ class FriendRequestItem extends StatelessWidget {
                       width: 48,
                       height: 48,
                       fit: BoxFit.cover,
+                      // Fallback to initials if image fails to load
                       errorBuilder: (context, error, stackTrace) {
                         return _buildDefaultAvatar();
                       },
@@ -52,10 +58,12 @@ class FriendRequestItem extends StatelessWidget {
                       : _buildDefaultAvatar(),
                 ),
                 const SizedBox(width: 12),
+                // User information section
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Top row: user name and timestamp
                       Row(
                         children: [
                           Expanded(
@@ -67,6 +75,7 @@ class FriendRequestItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          // Request timestamp
                           Text(
                             timeText,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -76,6 +85,7 @@ class FriendRequestItem extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 2),
+                      // User's email address
                       Text(
                         user.email,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -83,6 +93,7 @@ class FriendRequestItem extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
+                      // Optional message attached to the friend request
                       if (request.message?.isNotEmpty == true) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -100,10 +111,12 @@ class FriendRequestItem extends StatelessWidget {
                 ),
               ],
             ),
+            // Action buttons for received pending requests
             if (isReceived && request.status == FriendRequestStatus.pending) ...[
               const SizedBox(height: 16),
               Row(
                 children: [
+                  // Decline button with error styling
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: onDecline,
@@ -116,6 +129,7 @@ class FriendRequestItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
+                  // Accept button with success styling
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: onAccept,
@@ -128,6 +142,7 @@ class FriendRequestItem extends StatelessWidget {
                   ),
                 ],
               ),
+              // Status indicator for sent requests
             ] else if (!isReceived && statusText != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -140,12 +155,14 @@ class FriendRequestItem extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Status icon based on request status
                     Icon(
                       _getStatusIcon(request.status),
                       size: 16,
                       color: statusColor,
                     ),
                     const SizedBox(width: 6),
+                    // Status text (e.g., "Pending", "Accepted", "Declined")
                     Text(
                       statusText!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -163,6 +180,9 @@ class FriendRequestItem extends StatelessWidget {
     );
   }
 
+  /// Builds the default avatar with user's initials
+  /// Used when profile picture is unavailable or fails to load
+  /// @return Widget - Circular text widget with user's initial
   Widget _buildDefaultAvatar() {
     return Text(
       user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
@@ -174,14 +194,18 @@ class FriendRequestItem extends StatelessWidget {
     );
   }
 
+  /// Returns the appropriate icon for each friend request status
+  /// Used in the status indicator for sent requests
+  /// @param status - The current status of the friend request
+  /// @return IconData - The corresponding icon for the status
   IconData _getStatusIcon(FriendRequestStatus status) {
     switch (status) {
       case FriendRequestStatus.pending:
-        return Icons.access_time;
+        return Icons.access_time;    // Clock icon for pending
       case FriendRequestStatus.accepted:
-        return Icons.check_circle;
+        return Icons.check_circle;   // Check circle for accepted
       case FriendRequestStatus.declined:
-        return Icons.cancel;
+        return Icons.cancel;         // Cancel icon for declined
     }
   }
 }
