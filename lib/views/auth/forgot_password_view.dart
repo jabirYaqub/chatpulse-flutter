@@ -3,11 +3,15 @@ import 'package:get/get.dart';
 import 'package:chat_app_flutter/controllers/forgot_password_controller.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// StatelessWidget that provides a password reset interface
+/// Features a two-state UI: email input form and email sent confirmation
+/// Uses GetX for state management and reactive UI updates
 class ForgotPasswordView extends StatelessWidget {
   const ForgotPasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Initialize the forgot password controller using GetX dependency injection
     final controller = Get.put(ForgotPasswordController());
 
     return Scaffold(
@@ -15,11 +19,14 @@ class ForgotPasswordView extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Form(
+            // Form key for validation handling
             key: controller.formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
+
+                // Header section with back button and title
                 Row(
                   children: [
                     IconButton(
@@ -34,8 +41,10 @@ class ForgotPasswordView extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
+
+                // Descriptive subtitle aligned with the title
                 Padding(
-                  padding: const EdgeInsets.only(left: 56),
+                  padding: const EdgeInsets.only(left: 56), // Align with title text
                   child: Text(
                     'Enter your email to receive a password reset link',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -44,6 +53,8 @@ class ForgotPasswordView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 60),
+
+                // Lock reset icon with circular background
                 Center(
                   child: Container(
                     width: 100,
@@ -60,6 +71,9 @@ class ForgotPasswordView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
+
+                // Dynamic content area - switches between email form and confirmation
+                // Uses Obx for reactive updates when emailSent state changes
                 Obx(() {
                   if (controller.emailSent) {
                     return _buildEmailSentContent(controller);
@@ -75,9 +89,14 @@ class ForgotPasswordView extends StatelessWidget {
     );
   }
 
+  /// Builds the initial email input form
+  /// Contains email field, send button, and navigation back to login
+  /// @param controller - The ForgotPasswordController managing this form
+  /// @return Widget - The email input form widget tree
   Widget _buildEmailForm(ForgotPasswordController controller) {
     return Column(
       children: [
+        // Email input field with validation
         TextFormField(
           controller: controller.emailController,
           keyboardType: TextInputType.emailAddress,
@@ -89,10 +108,15 @@ class ForgotPasswordView extends StatelessWidget {
           validator: controller.validateEmail,
         ),
         const SizedBox(height: 32),
+
+        // Send reset link button with loading state
+        // Uses Obx for reactive updates when loading state changes
         Obx(() => SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
+            // Disable button during loading to prevent multiple submissions
             onPressed: controller.isLoading ? null : controller.sendPasswordResetEmail,
+            // Show loading spinner or send icon based on state
             icon: controller.isLoading
                 ? const SizedBox(
               height: 20,
@@ -103,10 +127,13 @@ class ForgotPasswordView extends StatelessWidget {
               ),
             )
                 : const Icon(Icons.send),
+            // Dynamic button text based on loading state
             label: Text(controller.isLoading ? 'Sending...' : 'Send Reset Link'),
           ),
         )),
         const SizedBox(height: 24),
+
+        // Navigation link back to login screen
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -130,9 +157,14 @@ class ForgotPasswordView extends StatelessWidget {
     );
   }
 
+  /// Builds the email sent confirmation screen
+  /// Displays success message, user's email, and action buttons
+  /// @param controller - The ForgotPasswordController managing this state
+  /// @return Widget - The email sent confirmation widget tree
   Widget _buildEmailSentContent(ForgotPasswordController controller) {
     return Column(
       children: [
+        // Success message container with green styling
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -142,12 +174,15 @@ class ForgotPasswordView extends StatelessWidget {
           ),
           child: Column(
             children: [
+              // Email read icon indicating successful send
               const Icon(
                 Icons.mark_email_read_rounded,
                 size: 60,
                 color: AppTheme.successColor,
               ),
               const SizedBox(height: 16),
+
+              // Success heading
               Text(
                 'Email Sent!',
                 style: Theme.of(Get.context!).textTheme.headlineSmall?.copyWith(
@@ -156,6 +191,8 @@ class ForgotPasswordView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // Instructional text
               Text(
                 'We\'ve sent a password reset link to:',
                 style: Theme.of(Get.context!).textTheme.bodyMedium?.copyWith(
@@ -164,6 +201,8 @@ class ForgotPasswordView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
+
+              // Display the email address that received the reset link
               Text(
                 controller.emailController.text,
                 style: Theme.of(Get.context!).textTheme.bodyLarge?.copyWith(
@@ -172,6 +211,8 @@ class ForgotPasswordView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Additional instructions for the user
               Text(
                 'Check your email and follow the instructions to reset your password.',
                 style: Theme.of(Get.context!).textTheme.bodySmall?.copyWith(
@@ -183,6 +224,8 @@ class ForgotPasswordView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 32),
+
+        // Resend email button (outlined style for secondary action)
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
@@ -192,6 +235,8 @@ class ForgotPasswordView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
+
+        // Back to login button (primary action)
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
@@ -201,6 +246,8 @@ class ForgotPasswordView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
+
+        // Helpful tip container with info styling
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -209,12 +256,15 @@ class ForgotPasswordView extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // Info icon for the tip
               const Icon(
                 Icons.info_outline,
                 color: AppTheme.secondaryColor,
                 size: 20,
               ),
               const SizedBox(width: 12),
+
+              // Tip text about checking spam folder
               Expanded(
                 child: Text(
                   'Didn\'t receive the email? Check your spam folder or try again.',
