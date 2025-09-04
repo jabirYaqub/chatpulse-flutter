@@ -6,6 +6,9 @@ import 'package:chat_app_flutter/controllers/auth_controller.dart';
 import 'package:chat_app_flutter/routes/app_routes.dart';
 import 'package:chat_app_flutter/config/app_theme.dart';
 
+/// StatefulWidget that provides the user registration interface
+/// Features form validation, password confirmation, profile picture upload,
+/// and integration with authentication controller for account creation
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
 
@@ -14,21 +17,30 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
+  // Form key for validation handling
   final _formKey = GlobalKey<FormState>();
+
+  // Text controllers for all input fields
   final _displayNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  // AuthController instance for handling registration logic
   final AuthController _authController = Get.find<AuthController>();
+
+  // Image picker for profile picture selection
   final ImagePicker _imagePicker = ImagePicker();
 
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  File? _selectedImage;
-  bool _isPickingImage = false;
+  // Local state variables for UI control
+  bool _obscurePassword = true;           // Password field visibility toggle
+  bool _obscureConfirmPassword = true;    // Confirm password field visibility toggle
+  File? _selectedImage;                   // Selected profile picture file
+  bool _isPickingImage = false;           // Image picker loading state
 
   @override
   void dispose() {
+    // Clean up all controllers to prevent memory leaks
     _displayNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -48,6 +60,8 @@ class _RegisterViewState extends State<RegisterView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
+
+                // Header section with back button and title
                 Row(
                   children: [
                     IconButton(
@@ -62,8 +76,10 @@ class _RegisterViewState extends State<RegisterView> {
                   ],
                 ),
                 const SizedBox(height: 8),
+
+                // Descriptive subtitle aligned with the title
                 Padding(
-                  padding: const EdgeInsets.only(left: 56),
+                  padding: const EdgeInsets.only(left: 56), // Align with title text
                   child: Text(
                     'Fill in your details to get started',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -72,6 +88,8 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                 ),
                 const SizedBox(height: 40),
+
+                // Display name input field with validation
                 TextFormField(
                   controller: _displayNameController,
                   decoration: const InputDecoration(
@@ -80,9 +98,11 @@ class _RegisterViewState extends State<RegisterView> {
                     hintText: 'Enter your display name',
                   ),
                   validator: (value) {
+                    // Check if display name is empty
                     if (value?.isEmpty ?? true) {
                       return 'Please enter your display name';
                     }
+                    // Validate minimum length for display name
                     if (value!.length < 2) {
                       return 'Display name must be at least 2 characters';
                     }
@@ -90,6 +110,8 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Email input field with format validation
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -99,9 +121,11 @@ class _RegisterViewState extends State<RegisterView> {
                     hintText: 'Enter your email',
                   ),
                   validator: (value) {
+                    // Check if email field is empty
                     if (value?.isEmpty ?? true) {
                       return 'Please enter your email';
                     }
+                    // Validate email format using GetX utility
                     if (!GetUtils.isEmail(value!)) {
                       return 'Please enter a valid email';
                     }
@@ -109,17 +133,20 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Password input field with visibility toggle and validation
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outlined),
+                    // Eye icon button to toggle password visibility
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
+                            ? Icons.visibility_off_outlined  // Password hidden
+                            : Icons.visibility_outlined,     // Password visible
                       ),
                       onPressed: () {
                         setState(() {
@@ -130,9 +157,11 @@ class _RegisterViewState extends State<RegisterView> {
                     hintText: 'Enter your password',
                   ),
                   validator: (value) {
+                    // Check if password field is empty
                     if (value?.isEmpty ?? true) {
                       return 'Please enter your password';
                     }
+                    // Validate minimum password length
                     if (value!.length < 6) {
                       return 'Password must be at least 6 characters';
                     }
@@ -140,17 +169,20 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Confirm password field with matching validation
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     prefixIcon: const Icon(Icons.lock_outlined),
+                    // Eye icon button to toggle confirm password visibility
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
+                            ? Icons.visibility_off_outlined  // Password hidden
+                            : Icons.visibility_outlined,     // Password visible
                       ),
                       onPressed: () {
                         setState(() {
@@ -161,9 +193,11 @@ class _RegisterViewState extends State<RegisterView> {
                     hintText: 'Confirm your password',
                   ),
                   validator: (value) {
+                    // Check if confirm password field is empty
                     if (value?.isEmpty ?? true) {
                       return 'Please confirm your password';
                     }
+                    // Validate that passwords match
                     if (value != _passwordController.text) {
                       return 'Passwords do not match';
                     }
@@ -171,9 +205,13 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                 ),
                 const SizedBox(height: 32),
+
+                // Create account button with loading state
+                // Uses Obx for reactive updates when auth controller loading state changes
                 Obx(() => SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    // Disable button during loading to prevent multiple submissions
                     onPressed: _authController.isLoading ? null : _signUp,
                     child: _authController.isLoading
                         ? const SizedBox(
@@ -188,8 +226,12 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                 )),
                 const SizedBox(height: 24),
+
+                // Profile picture upload section (optional)
                 _buildProfilePictureSection(),
                 const SizedBox(height: 32),
+
+                // Sign in navigation link for existing users
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -217,9 +259,13 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  /// Builds the optional profile picture upload section
+  /// Contains image preview, upload/change buttons, and remove functionality
+  /// @return Widget - The complete profile picture section
   Widget _buildProfilePictureSection() {
     return Column(
       children: [
+        // Container with light background and border for the profile section
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -233,6 +279,7 @@ class _RegisterViewState extends State<RegisterView> {
           ),
           child: Column(
             children: [
+              // Section title
               Text(
                 'Profile Picture (Optional)',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -241,14 +288,19 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ),
               const SizedBox(height: 12),
+
+              // Show either selected image preview or placeholder
               _selectedImage != null
                   ? _buildSelectedImagePreview()
                   : _buildImagePlaceholder(),
               const SizedBox(height: 16),
+
+              // Show loading indicator or action button
               _isPickingImage
                   ? const CircularProgressIndicator()
                   : ElevatedButton.icon(
                 onPressed: _pickImage,
+                // Change icon and text based on whether image is selected
                 icon: Icon(_selectedImage != null ? Icons.edit : Icons.camera_alt),
                 label: Text(_selectedImage != null ? 'Change Photo' : 'Add Photo'),
                 style: ElevatedButton.styleFrom(
@@ -260,6 +312,8 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                 ),
               ),
+
+              // Show remove button only when image is selected
               if (_selectedImage != null) ...[
                 const SizedBox(height: 8),
                 TextButton.icon(
@@ -275,6 +329,9 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  /// Builds the preview widget for the selected profile image
+  /// Shows the image in a circular container with border styling
+  /// @return Widget - The image preview widget
   Widget _buildSelectedImagePreview() {
     return Container(
       width: 100,
@@ -292,6 +349,9 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  /// Builds the placeholder widget shown when no image is selected
+  /// Displays a generic person icon in a circular gray container
+  /// @return Widget - The placeholder widget
   Widget _buildImagePlaceholder() {
     return Container(
       width: 100,
@@ -309,12 +369,16 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  /// Handles the image selection process
+  /// Shows a dialog to choose between camera and gallery, then picks the image
+  /// Optimizes the selected image by resizing and compressing it
   Future<void> _pickImage() async {
     setState(() {
       _isPickingImage = true;
     });
 
     try {
+      // Show dialog to choose image source (camera or gallery)
       final result = await Get.dialog<ImageSource>(
         AlertDialog(
           title: const Text('Select Photo'),
@@ -334,14 +398,16 @@ class _RegisterViewState extends State<RegisterView> {
         ),
       );
 
+      // If user selected a source, proceed with image picking
       if (result != null) {
         final XFile? pickedFile = await _imagePicker.pickImage(
           source: result,
-          maxWidth: 512,
-          maxHeight: 512,
-          imageQuality: 80,
+          maxWidth: 512,        // Resize to maximum 512px width
+          maxHeight: 512,       // Resize to maximum 512px height
+          imageQuality: 80,     // Compress to 80% quality
         );
 
+        // If image was successfully picked, update the state
         if (pickedFile != null) {
           setState(() {
             _selectedImage = File(pickedFile.path);
@@ -349,27 +415,35 @@ class _RegisterViewState extends State<RegisterView> {
         }
       }
     } catch (e) {
+      // Show error message if image picking fails
       Get.snackbar('Error', 'Failed to pick image: ${e.toString()}');
     } finally {
+      // Always reset the loading state
       setState(() {
         _isPickingImage = false;
       });
     }
   }
 
+  /// Removes the currently selected profile image
+  /// Resets the _selectedImage to null
   void _removeImage() {
     setState(() {
       _selectedImage = null;
     });
   }
 
+  /// Handles the registration process by validating the form and calling the auth controller
+  /// Passes all form data including optional profile picture to the registration method
   void _signUp() {
+    // Validate all form fields before attempting registration
     if (_formKey.currentState?.validate() ?? false) {
+      // Call auth controller to handle registration with all user data
       _authController.registerWithEmailAndPassword(
         _emailController.text.trim(),
         _passwordController.text,
         _displayNameController.text.trim(),
-        profilePicture: _selectedImage,
+        profilePicture: _selectedImage, // Optional profile picture
       );
     }
   }
